@@ -40,7 +40,7 @@ write_sh = function(job_name,
   grid = read.delim(grid_file)
 
   # set up the script
-  if (system == 'sockeye') {
+  if (current_system == 'sockeye') {
     log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
     header_lines = c(
       '#!/bin/bash',
@@ -75,7 +75,7 @@ write_sh = function(job_name,
       paste0('conda activate ', base_dir, '/', env),
       ''
     )
-  } else if (system == 'lsi') {
+  } else if (current_system == 'lsi') {
     log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
     header_lines = c(
       '#!/bin/bash',
@@ -110,7 +110,7 @@ write_sh = function(job_name,
       ),
       ''
     )
-  } else if (system == 'cedar') {
+  } else if (current_system == 'cedar') {
     log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
     header_lines = c(
       '#!/bin/bash',
@@ -146,11 +146,11 @@ write_sh = function(job_name,
       ''
     )
   } else {
-    stop('not sure how to write a sh file for: ', system)
+    stop('not sure how to write a sh file for: ', current_system)
   }
 
   # set up the final part of the script, which is platform-agnostic
-  idx_var = switch(system,
+  idx_var = switch(current_system,
                    'cedar' = 'SLURM_ARRAY_TASK_ID',
                    'lsi' = 'SLURM_ARRAY_TASK_ID',
                    'sockeye' = 'PBS_ARRAY_INDEX')
@@ -192,7 +192,7 @@ write_sh = function(job_name,
   lines = c(header_lines,
             env_lines,
             run_lines)
-  sh_file = switch(system,
+  sh_file = switch(current_system,
                    cedar = sh_file,
                    lsi = sh_file,
                    sockeye = gsub("\\.sh", "", sh_file) %>%

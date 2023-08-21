@@ -11,7 +11,8 @@ detect_system(project_name = NULL)
 If unset, will be inferred from the working directory}
 }
 \value{
-assigns values to global variables \code{system} and \code{base_dir}
+assigns values to global variables \code{current_system} and 
+  \code{base_dir}
 }
 \description{
 Detect the current system (e.g., sockeye, LSI cluster, cedar) and set the

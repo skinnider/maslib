@@ -16,16 +16,16 @@ submit_job = function(grid, script, allocation, job_loop = 1) {
   ## detect system if not already done
   detect_system()
   
-  if (system == 'cedar') {
+  if (current_system == 'cedar') {
     n_jobs = ceiling(nrow(grid)/ job_loop)
     system(paste0("cd ~/project; ",
                   "sbatch --account=", allocation, " --array=1-", n_jobs,
                   " ", script, " ", job_loop))
-  } else if (system == 'lsi') {
+  } else if (current_system == 'lsi') {
     n_jobs = ceiling(nrow(grid)/ job_loop)
     system(paste0("sbatch --account=", allocation, " --array=1-", n_jobs,
                   " ", script, " ", job_loop))
-  } else if (system == 'sockeye') {
+  } else if (current_system == 'sockeye') {
     script %<>% gsub("\\.sh$", ".torque.sh", .)
     n_jobs = ceiling(nrow(grid)/ job_loop)
     # avoid a torque bug
@@ -46,7 +46,7 @@ submit_job = function(grid, script, allocation, job_loop = 1) {
       system(paste0("qsub -A ", allocation, " -J ", job_start, "-", job_end,
                     " -v ", shQuote(paste0("JOB_SIZE=", job_loop)), " ", script))
     }
-  } else if (system == 'elasti') {
+  } else if (current_system == 'elasti') {
     n_jobs = ceiling(nrow(grid)/ job_loop)
     script %<>% gsub("\\.sh$", ".elasti.sh", .)
     system(paste0("cd ~/project; ",
