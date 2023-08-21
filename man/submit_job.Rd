@@ -4,14 +4,14 @@
 \alias{submit_job}
 \title{Submit a job to the scheduler}
 \usage{
-submit_job(grid, script, allocation, job_loop = 1)
+submit_job(grid, script, allocation = NULL, job_loop = 1)
 }
 \arguments{
 \item{grid}{path to the tab-delimited grid file}
 
 \item{script}{path to write the submission script to}
 
-\item{allocation}{account name to use on the platform in question}
+\item{allocation}{optional, account name to use on the platform in question}
 
 \item{job_loop}{how many rows in the grid file should be run in one array
 job?}

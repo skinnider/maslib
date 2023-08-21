@@ -5,14 +5,14 @@
 #' 
 #' @param grid path to the tab-delimited grid file
 #' @param script path to write the submission script to
-#' @param allocation account name to use on the platform in question
+#' @param allocation optional, account name to use on the platform in question
 #' @param job_loop how many rows in the grid file should be run in one array
 #'   job?
 #'
 #' @importFrom magrittr `%<>%`
 #'
 #' @export
-submit_job = function(grid, script, allocation, job_loop = 1) {
+submit_job = function(grid, script, allocation = NULL, job_loop = 1) {
   ## detect system if not already done
   detect_system()
   
@@ -23,8 +23,7 @@ submit_job = function(grid, script, allocation, job_loop = 1) {
                   " ", script, " ", job_loop))
   } else if (current_system == 'lsi') {
     n_jobs = ceiling(nrow(grid)/ job_loop)
-    system(paste0("sbatch --account=", allocation, " --array=1-", n_jobs,
-                  " ", script, " ", job_loop))
+    system(paste0("sbatch --array=1-", n_jobs, " ", script, " ", job_loop))
   } else if (current_system == 'sockeye') {
     script %<>% gsub("\\.sh$", ".torque.sh", .)
     n_jobs = ceiling(nrow(grid)/ job_loop)
