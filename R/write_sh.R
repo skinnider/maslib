@@ -72,7 +72,10 @@ write_sh = function(job_name,
       'unset __conda_setup',
       '# <<< conda initialize <<<',
       '',
-      paste0('conda activate ', base_dir, '/', env),
+      ifelse(grepl('^\\/', env),
+             paste0('conda activate ', env),
+             paste0('conda activate ', file.path(base_dir, env))
+      ),
       ''
     )
   } else if (current_system == 'lsi') {
