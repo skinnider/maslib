@@ -196,6 +196,7 @@ write_sh = function(job_name,
   # set up the final part of the script, which is platform-agnostic
   idx_var = switch(current_system,
                    'cedar' = 'SLURM_ARRAY_TASK_ID',
+                   'della' = 'SLURM_ARRAY_TASK_ID',
                    'lsi' = 'SLURM_ARRAY_TASK_ID',
                    'sockeye' = 'PBS_ARRAY_INDEX')
   run_lines = c(
@@ -239,6 +240,7 @@ write_sh = function(job_name,
   sh_file = switch(current_system,
                    cedar = sh_file,
                    lsi = sh_file,
+                   della = sh_file,
                    sockeye = gsub("\\.sh", "", sh_file) %>%
                      paste0(., '.torque.sh'))
   sh_dir = dirname(sh_file)

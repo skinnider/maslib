@@ -12,7 +12,8 @@
 #' @importFrom magrittr `%<>%`
 #'
 #' @export
-submit_job = function(grid, script, allocation = NULL, job_loop = 1) {
+submit_job = function(grid, script, allocation = NULL, job_loop = 1,
+                      jobs_per_array = 100) {
   ## detect system if not already done
   detect_system()
   
