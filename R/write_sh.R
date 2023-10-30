@@ -115,6 +115,43 @@ write_sh = function(job_name,
       'JOB_SIZE=$1',
       ''
     )
+  }  else if (current_system == 'della') {
+    log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
+    header_lines = c(
+      '#!/bin/bash',
+      paste0('#SBATCH --time=', time, ':00:00'),
+      paste0('#SBATCH --job-name=', job_name),
+      paste0('#SBATCH --output=', log_dir, '/%x-%j-%a.out'),
+      paste0('#SBATCH --mem=', mem, 'G'),
+      paste0('#SBATCH --cpus-per-task=', cpus),
+      ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
+      ''
+    )
+    
+    env_lines = c(
+      '# >>> conda initialize >>>',
+      '# !! Contents within this block are managed by \'conda init\' !!',
+      '__conda_setup="$(\'/scratch/gfps/SKINNIDER/conda/miniconda3/bin/conda\' \'shell.bash\' \'hook\' 2> /dev/null)"',
+      'if [ $? -eq 0 ]; then',
+      'eval "$__conda_setup"',
+      'else',
+      'if [ -f "/scratch/gfps/SKINNIDER/conda/miniconda3/etc/profile.d/conda.sh" ]; then',
+      '. "/scratch/gfps/SKINNIDER/conda/miniconda3/etc/profile.d/conda.sh"',
+      'else',
+      'export PATH="/scratch/gfps/SKINNIDER/conda/miniconda3/bin:$PATH"',
+      'fi',
+      'fi',
+      'unset __conda_setup',
+      '# <<< conda initialize <<<',
+      '',
+      ifelse(grepl('^\\/', env),
+             paste0('conda activate ', env),
+             paste0('conda activate ', file.path(base_dir, env))
+      ),
+      '',
+      'JOB_SIZE=$1',
+      ''
+    )
   } else if (current_system == 'cedar') {
     log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
     header_lines = c(

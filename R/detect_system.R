@@ -20,6 +20,8 @@ detect_system = function(project_name = NULL) {
     current_system <<- 'elasti'
   } else if (grepl('argo', node)) {
     current_system <<- 'lsi'
+  } else if (grepl('della', node)) {
+    current_system <<- 'della'
   } else if (Sys.info()["sysname"] == 'Darwin') {
     current_system <<- 'local'
   }
@@ -38,6 +40,9 @@ detect_system = function(project_name = NULL) {
     base_dir <<- '/home/ubuntu/projects/rrg-ljfoster-ab/skinnim'
   } else if (current_system == 'lsi') {
     base_dir <<- '/Genomics/skinniderlab'
+    allocation <<- 'root'
+  } else if (current_system == 'della') {
+    base_dir <<- '/scratch/gfps/SKINNIDER'
     allocation <<- 'root'
   } else if (current_system == 'local') {
     base_dir <<- file.path("~/git", project_name, "data")
