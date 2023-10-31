@@ -42,7 +42,7 @@ detect_system = function(project_name = NULL) {
     base_dir <<- '/Genomics/skinniderlab'
     allocation <<- 'root'
   } else if (current_system == 'della') {
-    base_dir <<- '/scratch/gfps/SKINNIDER'
+    base_dir <<- '/scratch/gpfs/SKINNIDER'
     allocation <<- 'root'
   } else if (current_system == 'local') {
     base_dir <<- file.path("~/git", project_name, "data")
