@@ -22,7 +22,7 @@ submit_job = function(grid, script, allocation = NULL, job_loop = 1,
     system(paste0("cd ~/project; ",
                   "sbatch --account=", allocation, " --array=1-", n_jobs,
                   " ", script, " ", job_loop))
-  } else if (current_system %in% c('lsi', 'della')) {
+  } else if (current_system %in% c('lsi', 'della', 'sockeye')) {
     n_jobs = ceiling(nrow(grid)/ job_loop)
     system(paste0("sbatch --array=1-", n_jobs, " ", script, " ", job_loop))
   } else if (current_system == 'sockeye') {
