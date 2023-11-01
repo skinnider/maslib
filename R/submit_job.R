@@ -14,8 +14,14 @@
 #' @export
 submit_job = function(grid, script, allocation = NULL, job_loop = 1,
                       jobs_per_array = 100) {
+  args = as.list(match.call())
+  if (!is.null(args$allocation))
+    alloc <<- eval(args$allocation)
+  
   ## detect system if not already done
   detect_system()
+  if (!is.null(alloc))
+    allocation <<- alloc
   
   if (current_system == 'cedar') {
     n_jobs = ceiling(nrow(grid)/ job_loop)
