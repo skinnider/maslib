@@ -53,6 +53,7 @@ write_sh = function(job_name,
       ''
     )
     
+    user = system("echo $USER", intern = TRUE)
     env_lines = c(
       '# >>> conda initialize >>>',
       '# !! Contents within this block are managed by \'conda init\' !!',
