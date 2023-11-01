@@ -44,6 +44,43 @@ write_sh = function(job_name,
     log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
     header_lines = c(
       '#!/bin/bash',
+      paste0('#SBATCH --time=', time, ':00:00'),
+      paste0('#SBATCH --job-name=', job_name),
+      paste0('#SBATCH --output=', log_dir, '/%x-%a.out'),
+      paste0('#SBATCH --mem=', mem, 'G'),
+      paste0('#SBATCH --cpus-per-task=', cpus),
+      ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
+      ''
+    )
+    
+    env_lines = c(
+      '# >>> conda initialize >>>',
+      '# !! Contents within this block are managed by \'conda init\' !!',
+      paste0('__conda_setup="$(\'/home/', user,
+             '/miniconda3/bin/conda\' \'shell.bash\' \'hook\' 2> /dev/null)"'),
+      'if [ $? -eq 0 ]; then',
+      'eval "$__conda_setup"',
+      'else',
+      paste0('if [ -f "/home/', user,
+             '/miniconda3/etc/profile.d/conda.sh" ]; then'),
+      paste0('. "/home/', user, '/miniconda3/etc/profile.d/conda.sh"'),
+      'else',
+      paste0('export PATH="/home/', user, '/miniconda3/bin:$PATH"'),
+      'fi',
+      'fi',
+      'unset __conda_setup',
+      '# <<< conda initialize <<<',
+      '',
+      ifelse(grepl('^\\/', env),
+             paste0('conda activate ', env),
+             paste0('conda activate ', file.path(base_dir, env))
+      ),
+      ''
+    )
+  } else if (current_system == 'sockeye_pbs') {
+    log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
+    header_lines = c(
+      '#!/bin/bash',
       paste0('#PBS -l walltime=', time, ':00:00,select=1:n', 
              ifelse(gpu, 'gpus=', 'cpus='), cpus,
              ':mem=', mem, 'gb'),
@@ -84,7 +121,7 @@ write_sh = function(job_name,
       '#!/bin/bash',
       paste0('#SBATCH --time=', time, ':00:00'),
       paste0('#SBATCH --job-name=', job_name),
-      paste0('#SBATCH --output=', log_dir, '/%x-%j-%a.out'),
+      paste0('#SBATCH --output=', log_dir, '/%x-%a.out'),
       paste0('#SBATCH --mem=', mem, 'G'),
       paste0('#SBATCH --cpus-per-task=', cpus),
       ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
@@ -115,13 +152,13 @@ write_sh = function(job_name,
       'JOB_SIZE=$1',
       ''
     )
-  }  else if (current_system == 'della') {
+  } else if (current_system == 'della') {
     log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
     header_lines = c(
       '#!/bin/bash',
       paste0('#SBATCH --time=', time, ':00:00'),
       paste0('#SBATCH --job-name=', job_name),
-      paste0('#SBATCH --output=', log_dir, '/%x-%j-%a.out'),
+      paste0('#SBATCH --output=', log_dir, '/%x-%a.out'),
       paste0('#SBATCH --mem=', mem, 'G'),
       paste0('#SBATCH --cpus-per-task=', cpus),
       ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
@@ -158,7 +195,7 @@ write_sh = function(job_name,
       '#!/bin/bash',
       paste0('#SBATCH --time=', time, ':00:00'),
       paste0('#SBATCH --job-name=', job_name),
-      paste0('#SBATCH --output=', log_dir, '/%x-%j-%a.out'),
+      paste0('#SBATCH --output=', log_dir, '/%x-%a.out'),
       paste0('#SBATCH --mem=', mem, 'G'),
       paste0('#SBATCH --cpus-per-task=', cpus),
       ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
@@ -198,7 +235,8 @@ write_sh = function(job_name,
                    'cedar' = 'SLURM_ARRAY_TASK_ID',
                    'della' = 'SLURM_ARRAY_TASK_ID',
                    'lsi' = 'SLURM_ARRAY_TASK_ID',
-                   'sockeye' = 'PBS_ARRAY_INDEX')
+                   'sockeye' = 'SLURM_ARRAY_TASK_ID' # 'PBS_ARRAY_INDEX'
+                   )
   run_lines = c(
     paste0('cd ', getwd()),
     '',
@@ -241,8 +279,10 @@ write_sh = function(job_name,
                    cedar = sh_file,
                    lsi = sh_file,
                    della = sh_file,
-                   sockeye = gsub("\\.sh", "", sh_file) %>%
-                     paste0(., '.torque.sh'))
+                   sockeye = sh_file
+                   # sockeye = gsub("\\.sh", "", sh_file) %>%
+                   #   paste0(., '.torque.sh')
+                   )
   sh_dir = dirname(sh_file)
   if (!dir.exists(sh_dir))
     dir.create(sh_dir, recursive = TRUE)
