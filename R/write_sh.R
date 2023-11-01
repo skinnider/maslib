@@ -76,6 +76,8 @@ write_sh = function(job_name,
              paste0('conda activate ', env),
              paste0('conda activate ', file.path(base_dir, env))
       ),
+      '',
+      'JOB_SIZE=$1',
       ''
     )
   } else if (current_system == 'sockeye_pbs') {
