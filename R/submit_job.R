@@ -32,8 +32,12 @@ submit_job = function(grid, script, allocation = NULL, job_loop = 1,
     n_jobs = ceiling(nrow(grid)/ job_loop)
     system(paste0("sbatch --array=1-", n_jobs, " ", script, " ", job_loop))
   } else if (current_system == 'sockeye') {
+    wd = getwd()
+    if (file.exists(file.path(wd, script)))
+      script %<>% file.path(wd, .)
     n_jobs = ceiling(nrow(grid)/ job_loop)
-    system(paste0("sbatch --account=", allocation, " --array=1-", n_jobs,
+    system(paste0("cd /scratch; ",
+                  "sbatch --account=", allocation, " --array=1-", n_jobs,
                   " ", script, " ", job_loop))
   } else if (current_system == 'sockeye') {
     script %<>% gsub("\\.sh$", ".torque.sh", .)
