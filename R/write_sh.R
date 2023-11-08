@@ -242,7 +242,7 @@ write_sh = function(job_name,
                    'sockeye' = 'SLURM_ARRAY_TASK_ID' # 'PBS_ARRAY_INDEX'
                    )
   run_lines = c(
-    paste0('cd ', ifelse(is.null(cd), getwd(), cd),
+    paste0('cd ', ifelse(is.null(cd), getwd(), cd)),
     '',
     paste0('START=$((($', idx_var, '-1)*$JOB_SIZE + 1))'),
     paste0('STOP=$((($', idx_var, '-1)*$JOB_SIZE+$JOB_SIZE))'),
