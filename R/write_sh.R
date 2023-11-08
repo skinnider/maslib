@@ -32,7 +32,8 @@ write_sh = function(job_name,
                     time = 24, ## in hours
                     mem = 4, ## in GB
                     cpus = 1,
-                    gpu = FALSE
+                    gpu = FALSE,
+                    cd = getwd()
 ) {
   detect_system()
 
@@ -241,7 +242,7 @@ write_sh = function(job_name,
                    'sockeye' = 'SLURM_ARRAY_TASK_ID' # 'PBS_ARRAY_INDEX'
                    )
   run_lines = c(
-    paste0('cd ', getwd()),
+    paste0('cd ', ifelse(is.null(cd), getwd(), cd),
     '',
     paste0('START=$((($', idx_var, '-1)*$JOB_SIZE + 1))'),
     paste0('STOP=$((($', idx_var, '-1)*$JOB_SIZE+$JOB_SIZE))'),
