@@ -20,7 +20,7 @@ submit_job = function(grid, script, allocation = NULL, job_loop = 1,
   
   ## detect system if not already done
   detect_system()
-  if (!is.null(alloc))
+  if (exists(alloc) && !is.null(alloc))
     allocation <<- alloc
   
   if (current_system == 'cedar') {
