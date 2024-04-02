@@ -132,6 +132,7 @@ write_sh = function(job_name,
       ifelse(gpu, 
              paste0('#SBATCH --gres=gpu:1'), 
              paste0('#SBATCH --constraint=nogpu')),
+      paste0('#SBATCH --partition=main,hoppertest'),
       ''
     )
     
