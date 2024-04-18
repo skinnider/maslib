@@ -47,5 +47,6 @@ detect_system = function(project_name = NULL) {
   } else if (current_system == 'local') {
     base_dir <<- file.path("~/git", project_name, "data")
   }
-  base_dir <<- file.path(base_dir, project_name)
+  if (current_system != 'local')
+    base_dir <<- file.path(base_dir, project_name)
 }
