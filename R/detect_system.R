@@ -22,7 +22,11 @@ detect_system = function(project_name = NULL) {
     current_system <<- 'lsi'
   } else if (grepl('della', node)) {
     current_system <<- 'della'
-  } else if (Sys.info()["sysname"] == 'Darwin') {
+  } else if (Sys.info()["sysname"] == 'Darwin' |
+             Sys.info()["sysname"] == 'Windows') {
+    current_system <<- 'local'
+  } else {
+    warning('could not detect system; setting current_system = `local`')
     current_system <<- 'local'
   }
   
