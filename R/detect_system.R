@@ -16,6 +16,8 @@ detect_system = function(project_name = NULL) {
   node = Sys.info()[["nodename"]]
   if (grepl("cedar", node)) {
     current_system <<- 'cedar'
+  } else if (grepl("^login", node)) {
+    current_system <<- 'sockeye'
   } else if (grepl("frontend|worker", node)) {
     current_system <<- 'elasti'
   } else if (grepl('argo', node)) {
