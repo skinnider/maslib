@@ -127,9 +127,7 @@ write_sh = function(job_name,
       paste0('#SBATCH --output=', log_dir, '/%x-%a.out'),
       paste0('#SBATCH --mem=', mem, 'G'),
       paste0('#SBATCH --cpus-per-task=', cpus),
-      ifelse(gpu, 
-             paste0('#SBATCH --gres=gpu:1'), 
-             paste0('#SBATCH --constraint=nogpu')),
+      ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
       paste0('#SBATCH --partition=main,hoppertest,skinniderlab'),
       ''
     )
