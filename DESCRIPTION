@@ -5,7 +5,7 @@ Authors@R: c(
   person("Michael", "Skinnider", email = "michael.skinnider@msl.ubc.ca",
          role = c("cre")))
 BugReports: https://github.com/skinnider/maslib/issues
-Description: Contains utility functions for interacting with high-performance computing and data visualization
+Description: Contains utility functions for interacting with high-performance computing and data visualization.
 Depends: R (>= 4.0.0)
 Imports:
 	purrr,

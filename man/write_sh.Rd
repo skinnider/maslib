@@ -13,7 +13,9 @@ write_sh(
   time = 24,
   mem = 4,
   cpus = 1,
-  gpu = FALSE
+  gpu = FALSE,
+  gpu_spec = NA,
+  cd = getwd()
 )
 }
 \arguments{
@@ -34,6 +36,12 @@ write_sh(
 \item{cpus}{CPUs required for the job}
 
 \item{gpu}{if \code{TRUE}, a GPU will be requested}
+
+\item{gpu_spec}{if \code{gpu} is \code{TRUE}, this will be appended to the 
+\code{gres} string, e.g., \code{h100} will write \code{--gres=gpu:h100}}
+
+\item{cd}{change directory to this filepath before submitting; defaults to
+current working directory}
 }
 \value{
 returns nothing, but writes the slurm/PBSPro script to the specified

@@ -8,6 +8,8 @@
 #' @param allocation optional, account name to use on the platform in question
 #' @param job_loop how many rows in the grid file should be run in one array
 #'   job?
+#' @param jobs_per_array if the number of jobs to submit is larger than this 
+#'   value, split them into multiple arrays
 #'
 #' @importFrom magrittr `%<>%`
 #'

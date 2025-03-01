@@ -15,6 +15,10 @@
 #' @param mem memory required for the job, in GB
 #' @param cpus CPUs required for the job
 #' @param gpu if \code{TRUE}, a GPU will be requested
+#' @param gpu_spec if \code{gpu} is \code{TRUE}, this will be appended to the 
+#'   \code{gres} string, e.g., \code{h100} will write \code{--gres=gpu:h100}
+#' @param cd change directory to this filepath before submitting; defaults to
+#'   current working directory
 #'
 #' @return returns nothing, but writes the slurm/PBSPro script to the specified
 #'   filepath
@@ -33,13 +37,14 @@ write_sh = function(job_name,
                     mem = 4, ## in GB
                     cpus = 1,
                     gpu = FALSE,
+                    gpu_spec = NA,
                     cd = getwd()
 ) {
   detect_system()
-
+  
   # read the grid
   grid = read.delim(grid_file)
-
+  
   # set up the script
   if (current_system == 'sockeye') {
     log_dir = file.path(dirname(base_dir), 'logs', basename(base_dir))
@@ -51,7 +56,11 @@ write_sh = function(job_name,
       paste0('#SBATCH --mem=', mem, 'G'),
       paste0('#SBATCH --cpus-per-task=', cpus),
       paste0('#SBATCH --nodes=1'),
-      ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
+      ifelse(gpu,
+             ifelse(!is.na(gpu_spec),
+                    paste0('#SBATCH --gres=gpu:', gpu_spec),
+                    paste0('#SBATCH --gres=gpu:1')),
+             ''),
       ''
     )
     
@@ -92,7 +101,7 @@ write_sh = function(job_name,
       paste0('#PBS -e ', log_dir, '/', job_name, '-^array_index^.out'),
       ''
     )
-
+    
     user = system("echo $USER", intern = TRUE)
     env_lines = c(
       '# >>> conda initialize >>>',
@@ -106,7 +115,7 @@ write_sh = function(job_name,
              '/miniconda3/etc/profile.d/conda.sh" ]; then'),
       paste0('. "/home/', user, '/miniconda3/etc/profile.d/conda.sh"'),
       'else',
-        paste0('export PATH="/home/', user, '/miniconda3/bin:$PATH"'),
+      paste0('export PATH="/home/', user, '/miniconda3/bin:$PATH"'),
       'fi',
       'fi',
       'unset __conda_setup',
@@ -127,7 +136,11 @@ write_sh = function(job_name,
       paste0('#SBATCH --output=', log_dir, '/%x-%a.out'),
       paste0('#SBATCH --mem=', mem, 'G'),
       paste0('#SBATCH --cpus-per-task=', cpus),
-      ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
+      ifelse(gpu,
+             ifelse(!is.na(gpu_spec),
+                    paste0('#SBATCH --gres=gpu:', gpu_spec),
+                    paste0('#SBATCH --gres=gpu:1')),
+             ''),
       paste0('#SBATCH --partition=main,hoppertest,skinniderlab'),
       ''
     )
@@ -165,7 +178,11 @@ write_sh = function(job_name,
       paste0('#SBATCH --output=', log_dir, '/%x-%a.out'),
       paste0('#SBATCH --mem=', mem, 'G'),
       paste0('#SBATCH --cpus-per-task=', cpus),
-      ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
+      ifelse(gpu,
+             ifelse(!is.na(gpu_spec),
+                    paste0('#SBATCH --gres=gpu:', gpu_spec),
+                    paste0('#SBATCH --gres=gpu:1')),
+             ''),
       ''
     )
     
@@ -202,10 +219,14 @@ write_sh = function(job_name,
       paste0('#SBATCH --output=', log_dir, '/%x-%a.out'),
       paste0('#SBATCH --mem=', mem, 'G'),
       paste0('#SBATCH --cpus-per-task=', cpus),
-      ifelse(gpu, paste0('#SBATCH --gres=gpu:1'), ''),
+      ifelse(gpu,
+             ifelse(!is.na(gpu_spec),
+                    paste0('#SBATCH --gres=gpu:', gpu_spec),
+                    paste0('#SBATCH --gres=gpu:1')),
+             ''),
       ''
     )
-
+    
     env_lines = c(
       '# >>> conda initialize >>>',
       '# !! Contents within this block are managed by \'conda init\' !!',
@@ -233,14 +254,14 @@ write_sh = function(job_name,
   } else {
     stop('not sure how to write a sh file for: ', current_system)
   }
-
+  
   # set up the final part of the script, which is platform-agnostic
   idx_var = switch(current_system,
                    'cedar' = 'SLURM_ARRAY_TASK_ID',
                    'della' = 'SLURM_ARRAY_TASK_ID',
                    'lsi' = 'SLURM_ARRAY_TASK_ID',
                    'sockeye' = 'SLURM_ARRAY_TASK_ID' # 'PBS_ARRAY_INDEX'
-                   )
+  )
   run_lines = c(
     paste0('cd ', ifelse(is.null(cd), getwd(), cd)),
     '',
@@ -274,7 +295,7 @@ write_sh = function(job_name,
     }),
     'done'
   )
-
+  
   # write to file
   lines = c(header_lines,
             env_lines,
@@ -286,7 +307,7 @@ write_sh = function(job_name,
                    sockeye = sh_file
                    # sockeye = gsub("\\.sh", "", sh_file) %>%
                    #   paste0(., '.torque.sh')
-                   )
+  )
   sh_dir = dirname(sh_file)
   if (!dir.exists(sh_dir))
     dir.create(sh_dir, recursive = TRUE)

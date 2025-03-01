@@ -4,7 +4,7 @@
 \alias{submit_job}
 \title{Submit a job to the scheduler}
 \usage{
-submit_job(grid, script, allocation = NULL, job_loop = 1)
+submit_job(grid, script, allocation = NULL, job_loop = 1, jobs_per_array = 100)
 }
 \arguments{
 \item{grid}{path to the tab-delimited grid file}
@@ -15,6 +15,9 @@ submit_job(grid, script, allocation = NULL, job_loop = 1)
 
 \item{job_loop}{how many rows in the grid file should be run in one array
 job?}
+
+\item{jobs_per_array}{if the number of jobs to submit is larger than this 
+value, split them into multiple arrays}
 }
 \description{
 Submit an array of jobs to the scheduler on a high-performance computing 
