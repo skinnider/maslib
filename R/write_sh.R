@@ -141,7 +141,7 @@ write_sh = function(job_name,
                     paste0('#SBATCH --gres=gpu:', gpu_spec),
                     paste0('#SBATCH --gres=gpu:1')),
              ''),
-      paste0('#SBATCH --partition=main,hoppertest,skinniderlab'),
+      paste0('#SBATCH --partition=main,skinniderlab'),
       ''
     )
     
