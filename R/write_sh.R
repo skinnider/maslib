@@ -282,7 +282,7 @@ write_sh = function(job_name,
     switch(gsub("^.*\\.", "", trimws(inner_file)),
            'R' = paste0('Rscript ', inner_file, ' \\'),
            'py' = paste0('python ', inner_file, ' \\'),
-           paste0(inner_file, ' \\'
+           paste0(inner_file, ' \\')
     ), 
     map_chr(seq_len(ncol(grid)), ~ {
       col_idx = .x
