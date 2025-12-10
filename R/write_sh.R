@@ -43,7 +43,7 @@ write_sh = function(job_name,
   detect_system()
   
   # read the grid
-  grid = read.delim(grid_file)
+  grid = read.delim(grid_file, check.names = FALSE)
   
   # set up the script
   if (current_system == 'sockeye') {
