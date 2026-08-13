@@ -10,6 +10,8 @@ write_sh(
   grid_file,
   inner_file,
   env = "decoy-generation/env",
+  env_manager = c("conda", "pixi"),
+  pixi_dir = NULL,
   time = 24,
   mem = 4,
   cpus = 1,
@@ -27,7 +29,19 @@ write_sh(
 
 \item{inner_file}{path to the R/python inner file}
 
-\item{env}{path to the conda environment}
+\item{env}{path to the conda environment; only used when
+\code{env_manager == 'conda'}}
+
+\item{env_manager}{environment manager to activate for the job: either
+\code{'conda'} (the default) or \code{'pixi'}. When \code{'pixi'}, the
+environment is activated with \code{eval "$(pixi shell-hook)"} from within
+the project directory (\code{pixi_dir})}
+
+\item{pixi_dir}{when \code{env_manager == 'pixi'}, change directory to this
+filepath (which must contain the pixi manifest) before activating the
+environment and running the inner file; may be relative to \code{cd}, 
+below. Defaults to \code{NULL}, in which case no additional directory 
+change is made and pixi is activated from \code{cd}}
 
 \item{time}{time of the job, in hours}
 
@@ -50,7 +64,7 @@ returns nothing, but writes the slurm/PBSPro script to the specified
 \description{
 Write a submission script to run an array of jobs on a high-performance 
 computing platform. This function abstracts away specifying the computational
-requirements of the job, loading the relevant conda environment, and then
-reading the arguments from the grid file and passing them into an R or python
-'inner' file.
+requirements of the job, loading the relevant conda or pixi environment, and
+then reading the arguments from the grid file and passing them into an R or
+python 'inner' file.
 }

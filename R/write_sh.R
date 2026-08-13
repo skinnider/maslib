@@ -2,15 +2,25 @@
 #'
 #' Write a submission script to run an array of jobs on a high-performance 
 #' computing platform. This function abstracts away specifying the computational
-#' requirements of the job, loading the relevant conda environment, and then
-#' reading the arguments from the grid file and passing them into an R or python
-#' 'inner' file. 
+#' requirements of the job, loading the relevant conda or pixi environment, and
+#' then reading the arguments from the grid file and passing them into an R or
+#' python 'inner' file.
 #'
 #' @param job_name name of the job that will appear in the job management system
 #' @param sh_file path to write the submission script to
 #' @param grid_file path to the tab-delimited grid file
 #' @param inner_file path to the R/python inner file
-#' @param env path to the conda environment
+#' @param env path to the conda environment; only used when
+#'   \code{env_manager == 'conda'}
+#' @param env_manager environment manager to activate for the job: either
+#'   \code{'conda'} (the default) or \code{'pixi'}. When \code{'pixi'}, the
+#'   environment is activated with \code{eval "$(pixi shell-hook)"} from within
+#'   the project directory (\code{pixi_dir})
+#' @param pixi_dir when \code{env_manager == 'pixi'}, change directory to this
+#'   filepath (which must contain the pixi manifest) before activating the
+#'   environment and running the inner file; may be relative to \code{cd}, 
+#'   below. Defaults to \code{NULL}, in which case no additional directory 
+#'   change is made and pixi is activated from \code{cd}
 #' @param time time of the job, in hours
 #' @param mem memory required for the job, in GB
 #' @param cpus CPUs required for the job
@@ -33,6 +43,8 @@ write_sh = function(job_name,
                     grid_file,
                     inner_file,
                     env = 'decoy-generation/env',
+                    env_manager = c('conda', 'pixi'),
+                    pixi_dir = NULL,
                     time = 24, ## in hours
                     mem = 4, ## in GB
                     cpus = 1,
@@ -41,6 +53,7 @@ write_sh = function(job_name,
                     cd = getwd()
 ) {
   detect_system()
+  env_manager = match.arg(env_manager)
   
   # read the grid
   grid = read.delim(grid_file, check.names = FALSE)
@@ -254,7 +267,15 @@ write_sh = function(job_name,
   } else {
     stop('not sure how to write a sh file for: ', current_system)
   }
-  
+
+  # if using pixi rather than conda, drop the conda initialization block
+  if (env_manager == 'pixi') {
+    env_lines = c(
+      'JOB_SIZE=$1',
+      ''
+    )
+  }
+
   # set up the final part of the script, which is platform-agnostic
   idx_var = switch(current_system,
                    'cedar' = 'SLURM_ARRAY_TASK_ID',
@@ -262,6 +283,16 @@ write_sh = function(job_name,
                    'lsi' = 'SLURM_ARRAY_TASK_ID',
                    'sockeye' = 'SLURM_ARRAY_TASK_ID' # 'PBS_ARRAY_INDEX'
   )
+  # if using pixi, cd into the project directory, record the git log,
+  # and activate the environment with `pixi shell-hook`
+  pixi_lines = if (env_manager == 'pixi') {
+    c(
+      if (!is.null(pixi_dir)) paste0('cd ', pixi_dir),
+      'pwd',
+      'git log | head -5 # record the git commit used for this job',
+      'eval "$(pixi shell-hook)"'
+    )
+  }
   run_lines = c(
     paste0('cd ', ifelse(is.null(cd), getwd(), cd)),
     '',
@@ -279,6 +310,7 @@ write_sh = function(job_name,
       param_line
     }),
     '',
+    pixi_lines,
     switch(gsub("^.*\\.", "", trimws(inner_file)),
            'R' = paste0('Rscript ', inner_file, ' \\'),
            'py' = paste0('python ', inner_file, ' \\'),
